@@ -22,18 +22,17 @@ else
   exit;
   }
 
-  if (!empty($_POST)) {
-    if($_POST['tweet'] == '' ){
-      $error['tweet'] = 'blank';
-    }
-    if (!isset($error)) {
-      //insert文
-    $sql =' INSERT INTO `tweets` SET `tweet`=? , `member_id`=?, `reply_tweet_id`= -1 , `created`=NOW(),`modified`= NOW() ';
-    $data = array($_POST['tweet'],$_SESSION['id']);
-    $stmt = $dbh->prepare($sql);
-    $stmt->execute($data);
-
-    }
+    if (!empty($_POST)) {
+      if($_POST['tweet'] == '' ){
+        $error['tweet'] = 'blank';
+      }
+      if (!isset($error)) {
+        //insert文
+      $sql =' INSERT INTO `tweets` SET `tweet`=? , `member_id`=?, `reply_tweet_id`= -1 , `created`=NOW(),`modified`= NOW() ';
+      $data = array($_POST['tweet'],$_SESSION['id']);
+      $stmt = $dbh->prepare($sql);
+      $stmt->execute($data);
+      }
   }
 //一覧用の投稿全件取得
   //テーブル結合
@@ -43,10 +42,11 @@ else
   //OUTER JOIN(left join と right join) =複数のテーブルがあり、それらを結合する際に優先テーブルを１つ決め、そこにある情報を全て表示しながら、ほかのテーブルの情報についになるデータがあれば表示する
   //優先テーブルに指定されると、そのテーブルの情報を全て表示される
 
-  $tweet_spl = 'SELECT * FROM `tweets` LEFT JOIN `members`on `tweets`. `member_id` = `members` . `member_id` ORDER BY `tweets`.`created` DESC ' ;
+  $tweet_spl = 'SELECT * FROM `tweets` LEFT JOIN `members`on `tweets`. `member_id` = `members` . `member_id` WHERE `delete_flag` = 0 ORDER BY `tweets`.`created` DESC ' ;
   $tweet_stmt = $dbh->prepare($tweet_spl);
   $tweet_stmt->execute();
   $tweet_list = array();
+
 
 
 
@@ -59,11 +59,11 @@ else
       $tweet_list[] = $tweet; // ある文だけ配列に追加し
   }
 
-echo('<br>');
-echo('<br>');
-echo('<pre>');
-var_dump($tweet_list) ;
-echo('</pre>');
+  // echo('<br>');
+  // echo('<br>');
+  // echo('<pre>');
+  // var_dump($tweet_list) ;
+  // echo('</pre>');
 
 ?>
 <!DOCTYPE html>
@@ -146,8 +146,8 @@ echo('</pre>');
             <a href="view.html">
               2016-01-28 18:04
             </a>
-            [<a href="#" style="color: #00994C;">編集</a>]
-            [<a href="#" style="color: #F33;">削除</a>]
+            [<a href="edit.php?id=<?php echo $nikuman['tweet_id']; ?>" style="color: #00994C;">編集</a>]
+            [<a href="delete.php?id=<?php echo $nikuman['tweet_id']; ?>"  style="color: #F33;">削除</a>]
           </p>
         </div>
         <?php } ?>
