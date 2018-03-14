@@ -1,36 +1,20 @@
-<?php 
-  echo('<br>');
-  echo('<br>');  echo('<br>');
-  echo('<br>');  echo('<br>');
-  echo('<br>');
+<?php
 require('dbconnect.php');
-
-  $sql = ' SELECT * FROM `tweets` WHERE `tweet_id` = ? ';
-  $data = array($_GET['id']);
+session_start();
+//echo('<br>');
+//echo('<br>');
+// echo('<pre>');
+// var_dump($_SESSION['id']) ;
+// echo('</pre>');
+  $sql = 'SELECT * FROM `tweets` LEFT JOIN `members`on `tweets`. `member_id` = `members` . `member_id` WHERE `tweet_id` = ?' ;
+  $data = array($_GET['tweet_id']);
   $stmt = $dbh->prepare($sql);
   $stmt->execute($data);
   $tweet = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
-if (!empty($_POST)) {
-    if($_POST['tweet'] == '' ){
-      $error['tweet'] = 'blank';
-}
-if(!isset($error)) {
-      $sql = 'UPDATE `tweets` SET `tweet`= ?, `modified` = NOW() WHERE`tweet_id` = ? ';
-      $data = array($_POST['tweet'], $_GET['id']);
-      $stmt = $dbh->prepare($sql);
-      $stmt->execute($data);
-       header('Location: index.php');
-       exit();
-
-        }
-    } 
-
-
-
- ?>
-<!DOCTYPE html>
+  ?>
+  <!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="utf-8">
@@ -73,21 +57,22 @@ if(!isset($error)) {
 
   <div class="container">
     <div class="row">
-      <div class="col-md-6 col-md-offset-3 content-margin-top">
-        <h4>つぶやき編集</h4>
+      <div class="col-md-4 col-md-offset-4 content-margin-top">
         <div class="msg">
-          <form method="POST" action="" class="form-horizontal" role="form">
-            <p>現在のコメント<br></p>
-              <h2><?php echo $tweet['tweet'] ?></h2><br>
-            コメントの変更<br>
-            <input type="text" name="tweet" value=""><br>
-            <?php if(isset($error) && $error["tweet"] == 'blank'){ ?>
-            <p class="error">なにかいれて</p>
+          <img src="picture_path/<?php echo $tweet['picture_path'] ?>" width="100" height="100">
+          <p>投稿者 : <span class="name"><?php echo $tweet['nick_name'] ?></span></p>
+          <p>
+            つぶやき : <br>
+            <?php echo $tweet['tweet'] ?>
+          </p>
+          <p class="day">
+            <?php $tweet_date =$tweet['modified'];
+            echo date('Y-m-d H : i',  strtotime($tweet_date));
+            ?>
+            <?php if($_SESSION['id'] == $tweet['member_id']){ ?>
+            [<a href="delete.php?id=<?php echo $tweet['tweet_id']; ?>"  style="color: #F33;">削除</a>]
             <?php } ?>
-            <ul class="paging">
-              <input type="submit" class="btn btn-info" value="更新">
-            </ul>
-          </form>
+          </p>
         </div>
         <a href="index.php">&laquo;&nbsp;一覧へ戻る</a>
       </div>

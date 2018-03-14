@@ -33,20 +33,67 @@ else
       $stmt = $dbh->prepare($sql);
       $stmt->execute($data);
       }
+
+
   }
+//ページンリング機能
+  //からの変数を用意
+$page = '';
+
+  //パラメータが存在していた場合ページ番号を代入
+if (isset($_GET['page'])) {
+  $page = $_GET['page'];
+}else{
+  $page = 1;
+}
+// 1以下の李レギュラな数字が入ってきた時番号を強制的に１
+// max カンマ区切りで羅列された数字の中から最大の数字を取得
+$page= max($page,1);
+
+//1ページ分の表示件数
+$page_number = 5;
+
+//データの件数から最大ページを計算する。
+    $page_sql = 'SELECT COUNT(*) AS `page_count` FROM `tweets` WHERE `delete_flag` = 0';
+    $page_stmt = $dbh->prepare($page_sql);
+    $page_stmt->execute();
+    $page_count = $page_stmt->fetch(PDO::FETCH_ASSOC);
+    $all_page_number = ceil($page_count['page_count'] / $page_number);
+    //パラメータのぺージ番号が最大ページを超えていたら強制的にページとする
+    //min()カンマ区切りで羅列された数字の中から最小の数字を取得
+    $page = min($page, $all_page_number);
+    //表示するデータの取得開始位置
+    $start = ($page -1) * $page_number;
+
 //一覧用の投稿全件取得
   //テーブル結合
   //INNNR JOINと OUTTER JOIN(left join と right join)
   //INNER JOIN =両方のテーブルに存在するデータのみ
-  
+
   //OUTER JOIN(left join と right join) =複数のテーブルがあり、それらを結合する際に優先テーブルを１つ決め、そこにある情報を全て表示しながら、ほかのテーブルの情報についになるデータがあれば表示する
   //優先テーブルに指定されると、そのテーブルの情報を全て表示される
+  //limit = テーブルから取得する
+    //limit 取得する開始位置、開始する場所
 
-  $tweet_spl = 'SELECT * FROM `tweets` LEFT JOIN `members`on `tweets`. `member_id` = `members` . `member_id` WHERE `delete_flag` = 0 ORDER BY `tweets`.`created` DESC ' ;
+  $tweet_spl = "SELECT `tweets` . *,`members` . `nick_name`,`members` . `picture_path` FROM `tweets` LEFT JOIN `members`on `tweets`. `member_id` = `members` . `member_id` WHERE `delete_flag` = 0 ORDER BY `tweets` . `modified` DESC LIMIT " . $start . "," . $page_number ;
   $tweet_stmt = $dbh->prepare($tweet_spl);
   $tweet_stmt->execute();
+
   $tweet_list = array();
 
+
+echo('<br>'); 
+echo('<br>');
+
+echo('<pre>');
+var_dump($all_page_number) ;
+echo('</pre>');
+echo('<pre>');
+var_dump($start) ;
+echo('</pre>');
+echo('<pre>');
+var_dump($tweet_list) ;
+echo('</pre>');
 
 
 
@@ -58,6 +105,9 @@ else
       }
       $tweet_list[] = $tweet; // ある文だけ配列に追加し
   }
+
+
+
 
   // echo('<br>');
   // echo('<br>');
@@ -94,7 +144,7 @@ else
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="index.html"><span class="strong-title"><i class="fa fa-twitter-square"></i> Seed SNS</span></a>
+              <a class="navbar-brand" href="index.php"><span class="strong-title"><i class="fa fa-twitter-square"></i> Seed SNS</span></a>
           </div>
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -126,10 +176,19 @@ else
           <ul class="paging">
             <input type="submit" class="btn btn-info" value="つぶやく">
                 &nbsp;&nbsp;&nbsp;&nbsp;
-                <li><a href="index.html" class="btn btn-default">前</a></li>
+                <?php if ($page == 1) {?>
+                <li>前</li>
+                <?php }else{ ?>
+                <li><a href="index.php?page=<?php echo $page -1; ?>" class="btn btn-default">前</a></li>
+                <?php } ?>
                 &nbsp;&nbsp;|&nbsp;&nbsp;
-                <li><a href="index.html" class="btn btn-default">次</a></li>
-          </ul>
+                <?php if ($page == $all_page_number) { ?>
+                <li>次</li>
+                <?php }else{ ?>
+                <li><a href="index.php?page=<?php echo $page +1; ?>" " class="btn btn-default">次</a></li>
+                <?php } ?>
+                <li><?php echo $page; ?>/<?php echo $all_page_number   ?></li>
+                 </ul>
         </form>
       </div>
 
@@ -140,14 +199,20 @@ else
           <img src="picture_path/<?php echo $nikuman['picture_path'] ?>" width="48" height="48">
           <p>
             <?php echo $nikuman['tweet'] ?><span class="name"> <?php echo $nikuman["nick_name"] ?> </span>
+            <?php if($login_member['member_id'] != $nikuman['member_id']){ ?>
             [<a href="#">Re</a>]
+            <?php } ?>
           </p>
           <p class="day">
             <a href="view.html">
               2016-01-28 18:04
             </a>
+             <?php if($login_member['member_id'] == $nikuman['member_id']){ ?>
             [<a href="edit.php?id=<?php echo $nikuman['tweet_id']; ?>" style="color: #00994C;">編集</a>]
             [<a href="delete.php?id=<?php echo $nikuman['tweet_id']; ?>"  style="color: #F33;">削除</a>]
+             <?php } ?>
+             [<a href="view.php?tweet_id=<?php echo $nikuman['tweet_id']; ?>">投稿を見る</a>]
+
           </p>
         </div>
         <?php } ?>
