@@ -1,31 +1,46 @@
 <?php 
+session_start();
 require('dbconnect.php');
 
-  $sql = ' SELECT * FROM `tweets` WHERE `tweet_id` = ? ';
-  $data = array($_GET['id']);
-  $stmt = $dbh->prepare($sql);
-  $stmt->execute($data);
-  $tweet = $stmt->fetch(PDO::FETCH_ASSOC);
 
+
+
+//返信する投稿の内容取得SQL
+//tweetsテーブルルの全権、membersテーブルのnick/namememberのpicpath
+  $spl = "SELECT `tweets` . *,`members` . `nick_name`,`members` . `picture_path` FROM `tweets` LEFT JOIN `members` ON `tweets` . `member_id` = `members` .`member_id`WHERE `tweet_id` = ?";
+  $data = array($_GET['tweet_id']);
+  $stmt = $dbh->prepare($spl);
+  $stmt->execute($data);
+  $reply_to = $stmt->fetch(PDO::FETCH_ASSOC);
+  $reply_msg = "@". $reply_to['tweet']."(".$reply_to['nick_name'].")";
+echo('<br>'); 
+echo('<br>');
+echo('<pre>');
+var_dump($reply_msg) ;
+echo('</pre>');
 
 if (!empty($_POST)) {
     if($_POST['tweet'] == '' ){
       $error['tweet'] = 'blank';
+    }
+
+  if(!isset($error)){
+
+    //インサート分
+    //ヒント1 ; スーパグローバル変数
+  $spl = "INSERT INTO `tweets` SET `tweet`=? , `member_id` = ? , `reply_tweet_id` = ?, `created` = NOW(), `modified` = NOW() ";
+  $data = array($_POST['tweet'],$_SESSION['id'],$_GET['tweet_id']);
+  $stmt = $dbh->prepare($spl);
+  $stmt->execute($data);
+  header('Location: index.php');
+  exit();
 }
-if(!isset($error)) {
-      $sql = 'UPDATE `tweets` SET `tweet`= ?, `modified` = NOW() WHERE`tweet_id` = ? ';
-      $data = array($_POST['tweet'], $_GET['id']);
-      $stmt = $dbh->prepare($sql);
-      $stmt->execute($data);
-       header('Location: index.php');
-       exit();
-
-        }
-    } 
-
-
+}
 
  ?>
+
+
+
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -70,19 +85,21 @@ if(!isset($error)) {
   <div class="container">
     <div class="row">
       <div class="col-md-6 col-md-offset-3 content-margin-top">
-        <h4>つぶやき編集</h4>
+        <h4>つぶやきに返信しましょう</h4>
         <div class="msg">
-          <form method="POST" action="" class="form-horizontal" role="form">
-            <p>現在のコメント<br></p>
-              <h2><?php echo $tweet['tweet'] ?></h2><br>
-            コメントの変更<br>
-            <input type="text" name="tweet" value=""><br>
-            <?php if(isset($error) && $error["tweet"] == 'blank'){ ?>
-            <p class="error">なにかいれて</p>
-            <?php } ?>
-            <ul class="paging">
-              <input type="submit" class="btn btn-info" value="更新">
-            </ul>
+          <form method="post" action="" class="form-horizontal" role="form">
+              <!-- つぶやき -->
+              <div class="form-group">
+                <label class="col-sm-4 control-label">つぶやきに返信</label>
+                <div class="col-sm-8">
+                  <textarea name="tweet" cols="50" rows="5" class="form-control" placeholder="何か入力してください"><?php echo $reply_msg ?></textarea>
+                   <?php if(isset($error) && $error['tweet'] == 'blank'){ ?>
+                    <p class="error">何かつぶやいてください</p>
+                   <?php } ?>
+                </div>
+              </div>
+              <input type="submit" class="btn btn-info" value="返信としてつぶやく">
+           
           </form>
         </div>
         <a href="index.php">&laquo;&nbsp;一覧へ戻る</a>

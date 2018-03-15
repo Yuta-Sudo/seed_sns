@@ -62,21 +62,21 @@ if (!empty($_POST)) {
 
         $_SESSION['join'] = $_POST;
         $_SESSION['join']['picture_path'] = $picture_path ;
-echo('<pre>');
-var_dump($_FILES) ;
-echo('</pre>');
-echo('<pre>');
-var_dump($_SESSION['join']['picture_path']) ;
-echo('</pre>');
-echo('<pre>');
-var_dump($nick_name) ;
-echo('</pre>');
-echo('<pre>');
-var_dump($email) ;
-echo('</pre>');
-echo('<pre>');
-var_dump($password) ;
-echo('</pre>');
+// echo('<pre>');
+// var_dump($_FILES) ;
+// echo('</pre>');
+// echo('<pre>');
+// var_dump($_SESSION['join']['picture_path']) ;
+// echo('</pre>');
+// echo('<pre>');
+// var_dump($nick_name) ;
+// echo('</pre>');
+// echo('<pre>');
+// var_dump($email) ;
+// echo('</pre>');
+// echo('<pre>');
+// var_dump($password) ;
+// echo('</pre>');
 
         //値の取り方 (２次元配列)$_SESSION['join']['nick_name']
         // check.phpに強制的に遷移する

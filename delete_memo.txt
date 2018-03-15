@@ -1,0 +1,31 @@
+物理削除・論理削除
+
+物理削除
+実際にデータをテーブルから削除する方法
+SQL ... DELETE文をし使用
+メリット: 不要なデータを貯めておかない＝容量の節約
+
+
+
+論理削除
+フラグ制御によって、一覧方データを非表示にし削除されたように見せる方法
+SQL ...UPDATEb文を使用
+メリット: データの復元が可能。
+重要なデータを物理削除した場合、手軽に復元することがてきないのでユーザ情報などのたいせ越なデータは実際のシステムではこっちメイン
+
+テーブルのユーザ定義
+
+
+論理削除の例
+tweet_idが一のものを論理削除する・
+
+UPDATE `tweets` SET `delete_flag` = 1 WHERE `tweet_id`
+
+ <form action="bbs.php" method='']>
+        <p>現在のコメント<br></p>
+          <h2><?php echo $tweet['tweet'] ?></h2><br>
+        コメントの変更<br>
+        <input type="text" name="tweet" value="<?php echo $tweet["tweet"] ?>"><br>
+
+        <p><input type="submit" value="編集を完了する"/></p>
+      </form>

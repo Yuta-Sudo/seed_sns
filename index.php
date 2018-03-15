@@ -72,28 +72,18 @@ $page_number = 5;
 
   //OUTER JOIN(left join と right join) =複数のテーブルがあり、それらを結合する際に優先テーブルを１つ決め、そこにある情報を全て表示しながら、ほかのテーブルの情報についになるデータがあれば表示する
   //優先テーブルに指定されると、そのテーブルの情報を全て表示される
+  
   //limit = テーブルから取得する
     //limit 取得する開始位置、開始する場所
 
   $tweet_spl = "SELECT `tweets` . *,`members` . `nick_name`,`members` . `picture_path` FROM `tweets` LEFT JOIN `members`on `tweets`. `member_id` = `members` . `member_id` WHERE `delete_flag` = 0 ORDER BY `tweets` . `modified` DESC LIMIT " . $start . "," . $page_number ;
   $tweet_stmt = $dbh->prepare($tweet_spl);
   $tweet_stmt->execute();
-
   $tweet_list = array();
 
 
-echo('<br>'); 
-echo('<br>');
 
-echo('<pre>');
-var_dump($all_page_number) ;
-echo('</pre>');
-echo('<pre>');
-var_dump($start) ;
-echo('</pre>');
-echo('<pre>');
-var_dump($tweet_list) ;
-echo('</pre>');
+
 
 
 
@@ -106,14 +96,6 @@ echo('</pre>');
       $tweet_list[] = $tweet; // ある文だけ配列に追加し
   }
 
-
-
-
-  // echo('<br>');
-  // echo('<br>');
-  // echo('<pre>');
-  // var_dump($tweet_list) ;
-  // echo('</pre>');
 
 ?>
 <!DOCTYPE html>
@@ -200,7 +182,7 @@ echo('</pre>');
           <p>
             <?php echo $nikuman['tweet'] ?><span class="name"> <?php echo $nikuman["nick_name"] ?> </span>
             <?php if($login_member['member_id'] != $nikuman['member_id']){ ?>
-            [<a href="#">Re</a>]
+            [<a href="reply.php?tweet_id=<?php echo $nikuman['tweet_id']; ?>">Re</a>]
             <?php } ?>
           </p>
           <p class="day">
@@ -212,7 +194,9 @@ echo('</pre>');
             [<a href="delete.php?id=<?php echo $nikuman['tweet_id']; ?>"  style="color: #F33;">削除</a>]
              <?php } ?>
              [<a href="view.php?tweet_id=<?php echo $nikuman['tweet_id']; ?>">投稿を見る</a>]
-
+             <?php if($nikuman['reply_tweet_id'] >=1){ ?>
+              [<a href="view.php?tweet_id=<?php echo $nikuman['reply_tweet_id']; ?>" style="color: #a9a9a9;">返信元のメッセージ</a>]
+              <?php } ?>
           </p>
         </div>
         <?php } ?>
