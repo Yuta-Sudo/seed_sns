@@ -1,26 +1,16 @@
 <?php 
-session_start();
+require('function.php');
 require('dbconnect.php');
-
 //ログインチェック
-if (isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time()) {
-  //ログインしている
-  //ログイン時間の更新
-  $_SESSION['time'] = time();
-  //ログインユーザー情報取得
-  $login_sql = 'SELECT * FROM `members` WHERE `member_id`=?';
-  $login_data = array($_SESSION['id']);
-  $login_stmt = $dbh->prepare($login_sql);
-  $login_stmt->execute($login_data);
-  $login_member = $login_stmt->fetch(PDO::FETCH_ASSOC);
-  }
-else
-{
-  //ログインしていない
-  //ログイン画面へ強制遷移する
-  header( "Location: login.php ");
-  exit;
-  }
+
+login_check();
+
+$login_sql = 'SELECT * FROM `members` WHERE `member_id`=?';
+
+      $login_data = array($_SESSION['id']);
+      $login_stmt = $dbh->prepare($login_sql);
+      $login_stmt->execute($login_data);
+      $login_member = $login_stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!empty($_POST)) {
       if($_POST['tweet'] == '' ){
@@ -33,6 +23,7 @@ else
       $stmt = $dbh->prepare($sql);
       $stmt->execute($data);
       }
+
 
 
   }
@@ -54,6 +45,9 @@ $page= max($page,1);
 $page_number = 5;
 
 //データの件数から最大ページを計算する。
+require('dbconnect.php');
+
+
     $page_sql = 'SELECT COUNT(*) AS `page_count` FROM `tweets` WHERE `delete_flag` = 0';
     $page_stmt = $dbh->prepare($page_sql);
     $page_stmt->execute();
@@ -81,11 +75,7 @@ $page_number = 5;
   $tweet_stmt->execute();
   $tweet_list = array();
 
-
-
-
-
-
+  
 
 
  while (true) { // trueな処理なら永遠に繰り返す
@@ -93,8 +83,28 @@ $page_number = 5;
       if ($tweet == false) {
           break; // データがなくなったら繰り返し処理を終える
       }
-      $tweet_list[] = $tweet; // ある文だけ配列に追加し
+      // like数を求めるSQL分
+      $like_sql = 'SELECT COUNT(*) AS `like_count` FROM `likes` WHERE `tweet_id` = ?';
+      $likes = array($tweet['tweet_id']);
+      $like_stmt = $dbh->prepare($like_sql);
+      $like_stmt->execute($likes);
+      $like_count = $like_stmt->fetch(PDO::FETCH_ASSOC);
+    //１行分のデータに新しいキーを用意して、$like_countを代入
+      $tweet['like_count'] = $like_count['like_count'];
+
+      //ログインしている人がlikeしているか取得
+    $sql = 'SELECT  COUNT(*) as `login_like_count` FROM `likes` WHERE `member_id`= ? AND `tweet_id` = ?';
+    $data = array($_SESSION['id'], $tweet['tweet_id']);
+    $stmt = $dbh->prepare($sql);
+    $stmt->execute($data);
+    $login_likes = $stmt->fetch(PDO::FETCH_ASSOC);
+    $tweet['login_like_flag'] = $login_likes['login_like_count'];
+
+    $tweet_list[] = $tweet; // ある文だけ配列に追加し
   }
+
+
+ 
 
 
 ?>
@@ -184,6 +194,12 @@ $page_number = 5;
             <?php if($login_member['member_id'] != $nikuman['member_id']){ ?>
             [<a href="reply.php?tweet_id=<?php echo $nikuman['tweet_id']; ?>">Re</a>]
             <?php } ?>
+            <?php if ($nikuman['login_like_flag'] == 0) { ?>
+             [<a href="like.php?action=like&id=<?php echo $nikuman['tweet_id']; ?>&page=<?php echo $page;?>""><i class="fa fa-thumbs-o-up">いいね！</i></a>]
+             <?php }else{ ?>
+             [<a href="like.php?action=dislike&id=<?php echo $nikuman['tweet_id'];?>&page=<?php echo $page;?>"><i class="fa fa-thumbs-o-down">帰れ</i></a>]
+                          <?php echo $nikuman['like_count']; ?>
+               <?php } ?>
           </p>
           <p class="day">
             <a href="view.html">
@@ -191,7 +207,7 @@ $page_number = 5;
             </a>
              <?php if($login_member['member_id'] == $nikuman['member_id']){ ?>
             [<a href="edit.php?id=<?php echo $nikuman['tweet_id']; ?>" style="color: #00994C;">編集</a>]
-            [<a href="delete.php?id=<?php echo $nikuman['tweet_id']; ?>"  style="color: #F33;">削除</a>]
+            [<a href="delete.php?id=<?php echo $nikuman['tweet_id']; ?>"  style="color: #F33;" onclick=" return confirm('本当に削除しますか？')">削除</a>]
              <?php } ?>
              [<a href="view.php?tweet_id=<?php echo $nikuman['tweet_id']; ?>">投稿を見る</a>]
              <?php if($nikuman['reply_tweet_id'] >=1){ ?>

@@ -70,7 +70,7 @@ session_start();
             echo date('Y-m-d H : i',  strtotime($tweet_date));
             ?>
             <?php if($_SESSION['id'] == $tweet['member_id']){ ?>
-            [<a href="delete.php?id=<?php echo $tweet['tweet_id']; ?>"  style="color: #F33;">削除</a>]
+            [<a href="delete.php?id=<?php echo $tweet['member_id']; ?>"  style="color: #F33;" onclick=" return confirm('本当に削除しますか？')">削除</a>]
             <?php } ?>
           </p>
         </div>
