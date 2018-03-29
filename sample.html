@@ -1,0 +1,53 @@
+<!-- bootstrapとは？ -->
+<!-- レスポンシブデザインに対応したフレームワーク -->
+<!-- 通常CSSを描く場合、全てのスタイルを自分で作っていく必要がある -->
+<!-- あらかじめ定義したクラス・スタイルがある、ルールに沿って使用する必要がある -->
+<!-- ネット上で提供されているファイル = CDN -->
+<!-- bootstrapを使うメリット -->
+<!-- ダウンロード -->
+
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<link href="assets/css/bootstrap.css" rel="stylesheet">
+	<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+	<link href="assets/css/form.css" rel="stylesheet">
+	<link href="assets/css/timeline.css" rel="stylesheet">
+	<link href="assets/css/main.css" rel="stylesheet">
+	<title>sample.html</title>
+</head>
+<body>
+	<!--  グリッドシステム -->
+	<!-- グリッドシステムとはスマートフォンやタブレットなどのデバイスに応じて構造を変化させるための仕組み -->
+	<!-- 使い方 -->
+	<!--  -->
+<!-- 1 <div class ="container"> または <div class ="container-fluid">を用意
+2 上で書いたdiv内に<div class="row"></div>を用意
+3<div class="row">内に<div class="col-oo-xx"></div>を用意
+4<div class="col-oo-xx">の〇〇にはサイズ、,xxには個数
+	サイズ
+	xs sm md lg xl
+	個数
+	1~12
+5 個数は合計12になるように-->
+<div class ="container">
+<div class="row">
+	<div class="col-xs-4" style="background-color: red;">
+		赤の範囲
+	</div>
+	<div class="col-xs-4" style="background-color: blue;">
+		青の範囲
+	</div>
+	<div class="col-xs-4" style="background-color: green;">
+		緑の範囲
+	</div>
+
+</div>
+</div>
+	<script src="assets/js/jquery-3.1.1.js"></script>
+	<script src="assets/js/jquery-migrate-1.4.1.js"></script>
+	<script src="assets/js/bootstrap.js"></script>
+</body>
+</html>

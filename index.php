@@ -102,6 +102,19 @@ require('dbconnect.php');
 
     $tweet_list[] = $tweet; // ある文だけ配列に追加し
   }
+//フォローしているユーザーの数
+   $following_sql = 'SELECT COUNT(*) as `following_count` FROM `follows` WHERE `member_id`=?';
+  $following_data = array($_SESSION['id']);
+  $following_stmt = $dbh->prepare($following_sql);
+  $following_stmt->execute($following_data);
+  $following = $following_stmt->fetch(PDO::FETCH_ASSOC);
+
+  // 自分がフォローされているユーザーの数
+  $follower_sql = 'SELECT COUNT(*) as `follower_count` FROM `follows` WHERE `follower_id`=?';
+  $follower_data = array($_SESSION['id']);
+  $follower_stmt = $dbh->prepare($follower_sql);
+  $follower_stmt->execute($follower_data);
+  $follower = $follower_stmt->fetch(PDO::FETCH_ASSOC);
 
 
  
@@ -182,9 +195,15 @@ require('dbconnect.php');
                 <li><?php echo $page; ?>/<?php echo $all_page_number   ?></li>
                  </ul>
         </form>
+        <iframe src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fyuta.sudo1124&tabs=timeline&width=0&height=0&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false&appId" width="500" height="500" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
       </div>
 
       <div class="col-md-8 content-margin-top">
+         <div class="col-md-8 content-margin-top">
+        <div class="msg_header">
+          <a href="follow.php">Followers<span class="badge badge-pill badge-default"><?php echo $follower['follower_count']; ?></span></a>
+          <a href="following.php">Followings<span class="badge badge-pill badge-default"><?php echo $following['following_count']; ?></span></a>
+        </div>
 
   <?php foreach( $tweet_list as $nikuman ) {?>
         <div class="msg">
@@ -198,8 +217,9 @@ require('dbconnect.php');
              [<a href="like.php?action=like&id=<?php echo $nikuman['tweet_id']; ?>&page=<?php echo $page;?>""><i class="fa fa-thumbs-o-up">いいね！</i></a>]
              <?php }else{ ?>
              [<a href="like.php?action=dislike&id=<?php echo $nikuman['tweet_id'];?>&page=<?php echo $page;?>"><i class="fa fa-thumbs-o-down">帰れ</i></a>]
-                          <?php echo $nikuman['like_count']; ?>
+                    <?php echo $nikuman['like_count']; ?>
                <?php } ?>
+               [<a href="like_user.php?tweet_id=<?php echo $nikuman['tweet_id'];?>">好きな人</a>]
           </p>
           <p class="day">
             <a href="view.html">

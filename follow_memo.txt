@@ -1,0 +1,16 @@
+フォロー機能の考え方
+いいね機能と似ている
+
+前提:今ログインしているユーザーがmember_id = 55の時
+
+
+ログインしているユーザのfollowingの数を表示
+$following_sql  = 'SELECT COUNT(*) AS `following` FROM `members` WHERE `member_id`=?';
+$following_data = array($_GET['member_id']);
+$following_stmt = $following_dbh->prepare($following_sql);
+$following_stmt->execute($following_data);
+$following = $stmt->fetch(PDO::FETCH_ASSOC);
+
+
+ログインしているユーザのfollowerの数を表示
+
