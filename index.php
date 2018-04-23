@@ -117,7 +117,16 @@ require('dbconnect.php');
   $follower = $follower_stmt->fetch(PDO::FETCH_ASSOC);
 
 
- 
+
+$expot_attends = ceil(count($attends) / 5);
+//echo('<br>'); 
+//echo('<br>');
+echo('<pre>');
+var_dump($expot_attends) ;
+echo('</pre>');
+//echo('<pre>');
+//var_dump($hoge) ;
+//echo('</pre>');
 
 
 ?>
